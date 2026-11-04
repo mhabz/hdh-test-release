@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import logging
 import re
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from infra_tests.ssh.client import SSHClient
+
+logger = logging.getLogger(__name__)
 
 CRON_MARKER = "CRON"
 _DATE_PREFIX = re.compile(r"^([A-Za-z]{3}\s+\d{1,2})")
@@ -52,4 +55,8 @@ def find_missing_cron_days(
             days_with_cron.add(day)
 
     expected_days = [reference_date - timedelta(days=offset) for offset in range(days)]
-    return [day for day in expected_days if day not in days_with_cron]
+    missing_days = [day for day in expected_days if day not in days_with_cron]
+    for day in expected_days:
+        status = "missing" if day in missing_days else "found"
+        logger.info("Day %s: CRON entry %s", day, status)
+    return missing_days

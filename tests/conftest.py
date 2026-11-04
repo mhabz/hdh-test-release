@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import shutil
 
 import pytest
@@ -17,6 +18,8 @@ from infra_tests.settings import (
     get_ssh_private_key_path,
 )
 from infra_tests.ssh.client import SSHClient
+
+logger = logging.getLogger(__name__)
 
 DOWNLOADS_DIR = PROJECT_ROOT / "downloads"
 
@@ -54,6 +57,7 @@ def ssh_client(server_config: ServerConfig):
     client.connect()
     yield client
     client.close()
+    logger.info("Test finished, SSH connection closed")
 
 
 @pytest.fixture(autouse=True)
@@ -68,6 +72,7 @@ def clean_downloads():
     for item in DOWNLOADS_DIR.iterdir():
         if item.name == ".gitkeep":
             continue
+        logger.info("Cleaning up downloaded file: %s", item)
         if item.is_file():
             item.unlink()
         else:

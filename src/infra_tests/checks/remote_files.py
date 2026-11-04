@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 
 from infra_tests.settings import ExpectedFile
 from infra_tests.ssh.client import SSHClient
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -25,18 +28,27 @@ def check_remote_file(client: SSHClient, expected: ExpectedFile) -> FileCheckRes
     try:
         attributes = client.stat(expected.path)
     except FileNotFoundError:
+        logger.info("File %s: not found", expected.path)
         return FileCheckResult(
             path=expected.path,
             exists=False,
             expected_size_bytes=expected.expected_size_bytes,
             actual_size_bytes=None,
         )
-    return FileCheckResult(
+    result = FileCheckResult(
         path=expected.path,
         exists=True,
         expected_size_bytes=expected.expected_size_bytes,
         actual_size_bytes=attributes.st_size,
     )
+    logger.info(
+        "File %s: expected=%s actual=%s (%s)",
+        expected.path,
+        result.expected_size_bytes,
+        result.actual_size_bytes,
+        "ok" if result.ok else "mismatch",
+    )
+    return result
 
 
 def check_remote_files(

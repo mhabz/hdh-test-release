@@ -1,0 +1,22 @@
+# Virtual environments
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Secrets
+.env
+
+# Docker fixture: dedicated keypair and local known_hosts file, never
+# versioned, never the user's real SSH configuration.
+docker/ssh/
+docker/known_hosts
+
+# Runtime outputs
+downloads/*
+!downloads/.gitkeep
+reports/*
+!reports/.gitkeep
+
+# IDE
+.idea/

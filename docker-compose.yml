@@ -1,0 +1,11 @@
+services:
+  ssh-target:
+    build:
+      context: ./docker
+    ports:
+      - "2222:22"
+    volumes:
+      - ssh_host_keys:/etc/ssh
+
+volumes:
+  ssh_host_keys:

@@ -1,0 +1,15 @@
+# Inventory of target servers.
+# No sensitive information here: authentication relies solely on an
+# SSH private key, whose path is provided via an environment variable
+# (see .env.example and docs/setup.md).
+#
+# Structured as a list from the start: a single server today,
+# but others can be added later without changing the code.
+
+servers:
+  - name: main
+    host: localhost
+    port: 2222
+    username: testuser
+    auth_log_path: /var/log/auth.log
+    cron_log_path: /var/log/cron.log

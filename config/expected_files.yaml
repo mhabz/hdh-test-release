@@ -1,0 +1,15 @@
+# List of expected remote files and their exact size in bytes.
+# Used by Test 3 (remote file checks).
+# Strict equality by default (no implicit tolerance).
+
+expected_files:
+  - path: /opt/fixtures/file1.bin
+    expected_size_bytes: 1024
+  - path: /opt/fixtures/file2.bin
+    expected_size_bytes: 2048
+  - path: /opt/fixtures/file3.bin
+    expected_size_bytes: 4096
+  - path: /opt/fixtures/file4.bin
+    expected_size_bytes: 512
+  - path: /opt/fixtures/file5.bin
+    expected_size_bytes: 8192

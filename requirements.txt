@@ -1,0 +1,12 @@
+# Project dependencies (runtime + development).
+# A single file on purpose: this is a small project, run directly
+# locally or in CI, never packaged/distributed.
+
+pytest
+pytest-html
+paramiko
+PyYAML
+python-dotenv
+
+# Code quality (dev)
+ruff

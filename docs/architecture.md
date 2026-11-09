@@ -10,7 +10,8 @@ remote Linux servers over SSH and verifies, through pytest, that:
 3. a set of expected files exist on the server and have the expected size.
 
 The design goals are: simplicity, maintainability, clear separation between configuration
-and code, no hardcoded secrets, and a straightforward path to CI/CD integration (Jenkins).
+and code, no hardcoded secrets, and a straightforward path to CI/CD integration (no
+specific CI system is set up for this project today).
 
 ## Layered design
 
@@ -149,6 +150,6 @@ error — because pytest treats the `yield` as a try/finally boundary.
 
 - Configuration (`config/*.yaml`) and secrets (environment variables) are both external
   to the code, so running the same test suite against a different server, or from a
-  Jenkins job, requires no code change — only different config/environment values.
+  CI job, requires no code change — only different config/environment values.
 - `reports/` is where both the human-readable (`pytest-html`) and machine-readable
-  (JUnit XML) outputs land, which is what a CI system like Jenkins consumes directly.
+  (JUnit XML) outputs land, which is what any CI system consumes directly.

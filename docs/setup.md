@@ -132,16 +132,16 @@ pytest --html=reports/report.html --junitxml=reports/results.xml
 ```
 
 - `reports/report.html` — human-readable report.
-- `reports/results.xml` — JUnit XML, consumed by Jenkins (or any CI) test reporting.
+- `reports/results.xml` — JUnit XML, the standard format most CI systems consume
+  natively for test reporting.
 
-## 7. Running from Jenkins
+## 7. Running from a CI system
 
-- Store the private key as a Jenkins **Credential** (type "SSH Username with private
-  key" or "Secret file", depending on how the pipeline exposes it), and inject it into
-  the job as `SSH_PRIVATE_KEY_PATH` (or a file Jenkins writes and you point the variable
-  to) — no code change is required, only job/pipeline configuration.
-- Archive `reports/results.xml` with the Jenkins JUnit plugin to get test results in the
-  build UI.
+- Store the private key as a CI **secret/credential** and inject it into the job as
+  `SSH_PRIVATE_KEY_PATH` (or a file the CI writes and you point the variable to) — no
+  code change is required, only job/pipeline configuration.
+- Most CI systems (GitLab CI, GitHub Actions, Jenkins, etc.) have a built-in way to
+  publish `reports/results.xml` (JUnit XML) as test results in the build UI.
 - Archive `reports/report.html` as a build artifact if a human-readable report is also
   wanted.
 

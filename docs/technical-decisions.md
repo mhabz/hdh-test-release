@@ -28,7 +28,7 @@ would require granting elevated rights to the test account purely for testing pu
 which is undesirable from a security standpoint.
 
 **Note on Test 1**: since Test 1 runs a remote shell command (`test -e <path>`, see
-decision 13) instead of going through SFTP, it only reports existence, not readability.
+decision 12) instead of going through SFTP, it only reports existence, not readability.
 A missing file and a file hidden behind a permission issue both make `test -e` return a
 non-zero exit status, so Test 1 cannot (and does not try to) tell them apart — that
 distinction only matters for Tests 2 and 3, which actually read file content.
@@ -128,20 +128,12 @@ configuration format (and the code that reads it) the day a second server is add
 - Secrets (the SSH private key, and its passphrase if any) are never stored in a
   versioned file. They are provided through environment variables, loaded via
   `python-dotenv` from a local, git-ignored `.env` file in development, or injected
-  directly by the CI system (Jenkins Credentials) in automated runs.
+  directly as environment variables/secrets by whatever CI system runs the suite in
+  automated runs.
 
 **Why**: this is an explicit project requirement ("no hardcoded secret or password").
 It is also what makes the project genuinely portable across environments and safe to
 version control in full.
-
-### A cautionary example from `curiosity-v2`
-
-While looking at the existing `curiosity-v2` project for inspiration, several patterns
-were worth reusing (see below) — but its `curiosity.yml` and `resources/constants.py`
-also contain real, plaintext secrets committed to the repository (database passwords, a
-back-office password, an API access token, a dashboard password). This is a direct
-illustration of the anti-pattern this project is designed to avoid, and it was not
-carried over.
 
 ## 8. Dependencies
 
@@ -162,9 +154,10 @@ JUnit XML reporting does not require an extra dependency: it is built into pytes
 **Decision**: every test run produces both an HTML report (`pytest-html`, for a human to
 read) and a JUnit XML report (native pytest flag, for a CI system to parse).
 
-**Why**: the two audiences are different. A human prefers a readable HTML page; Jenkins
-(and most CI systems) consume JUnit XML natively through their built-in test-reporting
-plugins. Producing both costs one extra dependency and one extra CLI flag.
+**Why**: the two audiences are different. A human prefers a readable HTML page; most CI
+systems (Jenkins, GitLab CI, GitHub Actions, ...) consume JUnit XML natively through
+their built-in test-reporting features. Producing both costs one extra dependency and
+one extra CLI flag.
 
 ## 10. Single requirements file
 
@@ -176,32 +169,19 @@ not ship development tooling. This project is never installed as a package elsew
 it runs directly from its own repository, locally or in CI. A single file is simpler to
 read, install, and present.
 
-## 11. CI/CD target: Jenkins compatibility
+## 11. CI/CD target: no specific CI system required
 
-**Decision**: the project is designed to run unmodified from a Jenkins job.
+**Decision**: the project is designed to run unmodified from any CI job (Jenkins,
+GitLab CI, GitHub Actions, ...), without committing to one in particular — none is set
+up for this project today.
 
 **Why this works without extra code**:
-- JUnit XML output is read natively by Jenkins' built-in test reporting.
-- Secrets are expected as environment variables / a key file, which matches how Jenkins
-  Credentials (the "SSH Agent" or "Secret file" credential types) inject values into a
-  build — no code change needed, only Jenkins job configuration.
+- JUnit XML output is read natively by most CI systems' built-in test reporting.
+- Secrets are expected as environment variables / a key file, which matches how every
+  mainstream CI system's secret/credential mechanism injects values into a build — no
+  code change needed, only job/pipeline configuration on whichever CI is chosen later.
 
-## 12. Patterns adapted from `curiosity-v2` (and why)
-
-| Pattern | Adapted as |
-|---|---|
-| Single YAML with a `DEFAULT` section plus per-environment overrides, merged at runtime | Same shape for `config/servers.yaml`, but without any secret value inside it |
-| `--env` pytest CLI option to pick a target environment | Candidate future addition once more than one environment/server exists |
-| Explicit `markers` declared in pytest configuration | Candidate future addition if tests need to be filtered by server or test type |
-| Small, focused assertion helper functions (e.g. `if_file_exist`) | Mirrored by the `checks/` modules: pure functions that `tests/` call before asserting |
-| `pytest-html` + a CI-friendly report | Reused directly; the S3-upload step from `curiosity-v2` is out of scope here |
-
-**Explicitly not reused**: module-level mutable globals for shared state (`conftest.py`
-in `curiosity-v2` uses `global BROWSER`, `global CONFIGURATION`, etc.). This project uses
-regular pytest fixtures with explicit scope instead, which is simpler to reason about and
-avoids shared mutable state between test runs.
-
-## 13. Test 1 runs a remote shell command, not SFTP
+## 12. Test 1 runs a remote shell command, not SFTP
 
 **Decision**: `checks/logs.py` checks the log file's existence by running `test -e
 <path>` on the server through `SSHClient.run_command` (which wraps Paramiko's

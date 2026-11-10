@@ -102,7 +102,7 @@ servers:
 
 To target a real server instead, replace these values (and `/var/log/syslog` or
 `/var/log/secure` may be the right `cron_log_path`/`auth_log_path` depending on the
-distribution). No secret belongs in this file — only host, port, username, and log paths.
+distribution).
 
 ## 5. Configure the expected files (Test 3)
 
